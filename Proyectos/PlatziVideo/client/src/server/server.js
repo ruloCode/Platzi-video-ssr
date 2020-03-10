@@ -1,57 +1,57 @@
+/* eslint-disable global-require */
 import express from 'express';
-import { config } from '../../config/index';
 import webpack from 'webpack';
 import helmet from 'helmet';
 import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { Provider } from 'react-redux';
-import { createStore, compose } from 'redux';
+import { createStore} from 'redux';
 import { renderRoutes } from 'react-router-config';
 import { StaticRouter } from 'react-router-dom';
+import { config } from '../../config/index';
 import serverRoutes from '../frontend/routes/serverRoutes';
 import initialState from '../frontend/initialState';
 import reducer from '../frontend/reducers/index';
 import getManifest from './getManifest';
 
-const app = express()
-
+const app = express();
 
 if (config.dev === 'development') {
-    console.log("Developmnet config");
+  console.log('Developmnet config');
 
-    const webpackConfig = require('../../webpack.config');
-    const webpackDevMiddleware = require('webpack-dev-middleware');
-    const webpackHotMiddleware = require('webpack-hot-middleware');
+  const webpackConfig = require('../../webpack.config');
+  const webpackDevMiddleware = require('webpack-dev-middleware');
+  const webpackHotMiddleware = require('webpack-hot-middleware');
 
-    const compiler = webpack(webpackConfig);
-    const serverConfig = { 
-        contentBase: `http://localhost${config.port}`,
-        port: config.port, 
-        publicPath: webpackConfig.output.publicPath,
-        hot: true,
-        historyApiFallback: true,
-        stats: { colors: true },
+  const compiler = webpack(webpackConfig);
+  const serverConfig = {
+    contentBase: `http://localhost${config.port}`,
+    port: config.port,
+    publicPath: webpackConfig.output.publicPath,
+    hot: true,
+    historyApiFallback: true,
+    stats: { colors: true },
 
-    };
-    app.use(webpackDevMiddleware(compiler, serverConfig))
-    app.use(webpackHotMiddleware(compiler))
-
+  };
+  app.use(webpackDevMiddleware(compiler, serverConfig));
+  app.use(webpackHotMiddleware(compiler));
 
 } else {
-    app.use((req, res, next ) => {
-        if (!req.hashManifest) req.hashManifest = getManifest();
-        next();
-    })
-    app.use(express.static(`${__dirname}/public`));
-    app.use(helmet());
-    app.use(helmet.permittedCrossDomainPolicies());
-    app.disable('x-powered-by');
+  app.use((req, res, next) => {
+    if (!req.hashManifest) req.hashManifest = getManifest();
+    next();
+  });
+  app.use(express.static(`${__dirname}/public`));
+  app.use(helmet());
+  app.use(helmet.permittedCrossDomainPolicies());
+  app.disable('x-powered-by');
 }
 const setResponse = (html, preloadedState, manifest) => {
-    const mainStyles = manifest ? manifest['main.css'] : 'assets/app.css';
-    const mainBuild = manifest ? manifest['main.js'] : 'assets/app.js';
+  const mainStyles = manifest ? manifest['main.css'] : 'assets/app.css';
+  const mainBuild = manifest ? manifest['main.js'] : 'assets/app.js';
+  const vendorBuild = manifest ? manifest['vendors.js'] : 'assets/vendor.js';
 
-    return (`
+  return (`
         <!DOCTYPE html>
         <html>
             <head>
@@ -62,35 +62,36 @@ const setResponse = (html, preloadedState, manifest) => {
                 <div id="app">${html}</div>
                 <script  >
                     window.__PRELOADED_STATE__ = ${JSON.stringify(preloadedState).replace(
-                        /</g,
-                        '\\u003c'
-                    )}
+      /</g,
+      '\\u003c',
+    )}
                 </script>
 
                 <script src="${mainBuild}" type="text/javascript" ></script>
+                <script src="${vendorBuild}" type="text/javascript" ></script>
+
             </body>
         </html>
-    `)
-}
-const renderApp= (req, res) => {
-    const store = createStore(reducer, initialState);
-    const preloadedState = store.getState();
-    const html = renderToString(
-        <Provider store={store}>
-            <StaticRouter location={req.url} context={{}}>
-                {renderRoutes(serverRoutes)}
-            </StaticRouter>
-      </Provider>,
-    );
-    res.send(setResponse(html, preloadedState, req.hashManifest));  
-}
+    `);
+};
+const renderApp = (req, res) => {
+  const store = createStore(reducer, initialState);
+  const preloadedState = store.getState();
+  const html = renderToString(
+    <Provider store={store}>
+      <StaticRouter location={req.url} context={{}}>
+        {renderRoutes(serverRoutes)}
+      </StaticRouter>
+    </Provider>,
+  );
+  res.send(setResponse(html, preloadedState, req.hashManifest));
+};
 
+app.get('*', renderApp);
 
-app.get('*', renderApp)
-
-app.listen(config.port, (err)=>{
-    if (err) {
-        console.log(err)
-    }
-    console.log(`Server running on ${config.host}:${config.port}`)
-})
+app.listen(config.port, (err) => {
+  if (err) {
+    console.log(err);
+  }
+  console.log(`Server running on ${config.host}:${config.port}`);
+});
