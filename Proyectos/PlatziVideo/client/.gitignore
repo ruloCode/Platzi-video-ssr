@@ -1,3 +1,4 @@
+src/server/public
 # Logs
 logs
 *.log
