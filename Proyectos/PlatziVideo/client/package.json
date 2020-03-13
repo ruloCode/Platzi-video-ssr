@@ -13,9 +13,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/polyfill": "^7.8.3",
+    "@babel/polyfill": "^7.8.7",
     "@babel/register": "^7.8.6",
     "asset-require-hook": "^1.2.0",
+    "axios": "^0.19.2",
     "babel-eslint": "^10.1.0",
     "classnames": "^2.2.6",
     "dotenv": "^8.2.0",
@@ -37,10 +38,11 @@
     "react-router-config": "^5.1.1",
     "react-router-dom": "^5.1.2",
     "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
     "webpack": "^4.42.0",
-    "webpack-manifest-plugin": "^2.2.0",
     "webpack-dev-middleware": "^3.7.2",
-    "webpack-hot-middleware": "^2.25.0"
+    "webpack-hot-middleware": "^2.25.0",
+    "webpack-manifest-plugin": "^2.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.8.6",
