@@ -75,12 +75,13 @@ const setResponse = (html, preloadedState, manifest) => {
     `);
 };
 const renderApp = (req, res) => {
+  const isLogged = (initialState.user.id);
   const store = createStore(reducer, initialState);
   const preloadedState = store.getState();
   const html = renderToString(
     <Provider store={store}>
       <StaticRouter location={req.url} context={{}}>
-        {renderRoutes(serverRoutes)}
+        {renderRoutes(serverRoutes(isLogged))}
       </StaticRouter>
     </Provider>,
   );
