@@ -24,7 +24,7 @@
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.18.3",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "helmet": "^3.21.3",
     "history": "^4.10.1",
     "ignore-styles": "^5.0.1",
